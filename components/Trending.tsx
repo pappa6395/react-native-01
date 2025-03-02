@@ -1,7 +1,22 @@
-import { Image, Text, FlatList, TouchableOpacity, ImageBackground, ViewStyle, TextStyle, ImageStyle } from 'react-native'
-import React, { useState } from 'react'
+import { 
+  Image, 
+  Text, 
+  FlatList, 
+  TouchableOpacity, 
+  ImageBackground, 
+  ViewStyle, 
+  TextStyle, 
+  ImageStyle, 
+  View, 
+  Button,
+  StyleSheet 
+} from 'react-native'
+import React, { useEffect, useState } from 'react'
 import * as Animatable from 'react-native-animatable';
 import { icons } from '@/constants';
+import { VideoView, useVideoPlayer } from 'expo-video'
+import { Video, ResizeMode } from 'expo-av'
+import { useEvent } from 'expo';
 
 
 const zoomIn: Animatable.CustomAnimation<TextStyle & ViewStyle & ImageStyle> = {
@@ -23,18 +38,29 @@ const TrendingItem = ({
 }) => {
 
   const [play, setPlay] = useState(false);
+  const videoSource = item?.videoUrl
 
-  //console.log("activeItem:", activeItem.$id, "Item ID:", item.$id);
+  const player = useVideoPlayer(videoSource, player => {
+    player.play();
+    player.loop = false;
+  });
+
+
   return (
     <Animatable.View
       className=''
-      animation={activeItem?.$id === item.$id ? zoomIn : zoomOut }
+      animation={activeItem?.id === item.id ? zoomIn : zoomOut }
       duration={500}
     >
       {play ? (
-        <Text className='text-white'>
-          Playing
-        </Text>
+        <VideoView 
+          style={styles.video} 
+          player={player} 
+          allowsFullscreen 
+          allowsPictureInPicture 
+          
+        />
+        
       ) : (
         <TouchableOpacity 
           className='relative justify-center items-center'
@@ -42,7 +68,7 @@ const TrendingItem = ({
           onPress={() => setPlay(true)}
         >
           <ImageBackground
-            source={{ uri: item.thumbnail}} 
+            source={{ uri: item.thumbnail}}
             className='w-52 h-72 rounded-[35px] my-5 
             overflow-hidden shadow-lg shadow-black/40'
             resizeMode='cover'
@@ -58,14 +84,16 @@ const TrendingItem = ({
   )
 }
 
-type PostProps = {
+export type PostProps = {
   posts: Posts[];
 }
-type Posts = {
+export type Posts = {
   id: number;
   title: string;
   description: string;
   thumbnail: string;
+  videoUrl: string;
+  prompt: string;
   creator: {
     username: string;
     avatar: string;
@@ -108,3 +136,18 @@ const Trending: React.FC<PostProps> = ({ posts }) => {
 }
 
 export default Trending
+
+const styles = StyleSheet.create({
+  video: {
+    width: 180,
+    height: 225,
+    borderRadius: 35,
+    marginTop: 6,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+  },
+  controlsContainer: {
+    padding: 10,
+  },
+});

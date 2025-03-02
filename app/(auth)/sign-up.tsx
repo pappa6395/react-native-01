@@ -6,6 +6,7 @@ import { images } from '../../constants'
 import FormField from '@/components/FormField'
 import CustomButton from '@/components/CustomButton'
 import { createUser } from '@/lib/appwrite'
+import { usePapAoraContext } from '@/context/globalProvider'
 
 type FormField = {
   username: string;
@@ -15,6 +16,7 @@ type FormField = {
 
 const SignUp = () => {
 
+  const { setUser, setIsLoggedIn } = usePapAoraContext()
   const [form, setForm] = useState<FormField>({
     username: '',
     email: '',
@@ -36,9 +38,12 @@ const SignUp = () => {
         setIsSubmitting(false)
         return;
       }
+      
+      setUser(result)
+      setIsLoggedIn(true);
       setIsSubmitting(false)
       Alert.alert('Success', 'User signed up successfully')
-      router.push('/sign-in')
+      router.push('/home')
     
     } catch (err) {
       Alert.alert('Error', 'Failed to sign up user')

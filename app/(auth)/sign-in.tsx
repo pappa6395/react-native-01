@@ -5,7 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { images } from '../../constants'
 import FormField from '@/components/FormField'
 import CustomButton from '@/components/CustomButton'
-import { signIn } from '@/lib/appwrite'
+import { getCurrenUser, signIn } from '@/lib/appwrite'
+import { usePapAoraContext } from '@/context/globalProvider'
 
 type FormField = {
   email: string;
@@ -14,6 +15,7 @@ type FormField = {
 
 const SignIn = () => {
 
+  const { setUser, setIsLoggedIn } = usePapAoraContext()
   const [form, setForm] = useState<FormField>({
     email: '',
     password: '',
@@ -35,6 +37,10 @@ const SignIn = () => {
         setIsSubmitting(false)
         return;
       }
+      const curUser = await getCurrenUser();
+      setUser(curUser)
+      setIsLoggedIn(true);
+
       Alert.alert('Success', 'User signed in successfully')
       setIsSubmitting(false)
       router.push('/home')

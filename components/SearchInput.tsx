@@ -1,25 +1,26 @@
-import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Image, Alert } from 'react-native'
 import { icons } from '../constants'
 import React, { useState } from 'react'
+import { router, usePathname } from 'expo-router';
 
 const SearchInput = ({
     title,
-    handleChangeText,
-    value,
     placeholder,
     otherStyles,
     keyboardType,
+    initialQuery
 
 }: {
     title: string,
-    handleChangeText: (text: string) => void,
-    value: string;
     placeholder?: string;
     otherStyles?: string;
     keyboardType?: string;
+    initialQuery?: any;
 }) => {
 
     const [showPassword, setShowPassword] = useState(false);
+    const [query, setQuery] = useState<string>(initialQuery || "");
+    const pathname = usePathname();
 
   return (
 
@@ -30,17 +31,26 @@ const SearchInput = ({
         <TextInput
             style={{ flex: 1 }} 
             className='text-white font-pregular text-base flex-1 mt-0.5'
-            value={value}
+            value={query}
             placeholder={placeholder}
-            placeholderTextColor={"#7b7b8b"}
-            onChangeText={handleChangeText}
+            placeholderTextColor={"#CDCDE0"}
+            onChangeText={(e) => setQuery(e)}
             secureTextEntry={title === 'Password' && !showPassword}
             keyboardType={keyboardType as any}
             returnKeyType='done'
             autoCorrect={false}
             autoCapitalize={'none'}
         />
-        <TouchableOpacity>
+        <TouchableOpacity
+            onPress={() => {
+                if (!query) {
+                    return Alert.alert('Missing query', 
+                    "Please input somethings to reach results across database")
+                }
+                if (pathname.startsWith('/search')) router.setParams({ query })
+                else router.push(`/search/${query}`)
+            }}
+        >
             <Image 
                 source={icons.search}
                 className='size-5'
